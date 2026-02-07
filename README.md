@@ -1,18 +1,7 @@
-# React + Vite
+Food Order Frontend is a modern and responsive food ordering web application built with React and Tailwind CSS.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The project focuses on creating a clean, user-friendly interface for browsing food menus, adding items to a cart, and preparing orders for submission. It is designed with scalability and real-world usage in mind, following best practices in component structure, routing, and UI design.
 
-Currently, two official plugins are available:
+Key features include a modern landing page, menu listing with food cards, cart-ready interactions, and client-side routing using React Router for smooth navigation. The UI is optimized for both desktop and mobile devices, ensuring an accessible and intuitive user experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This frontend is intended to integrate with a backend API for order processing and real-time notifications (such as Telegram bot integration) in later stages. The project demonstrates practical frontend development skills, clean code organization, and an understanding of building real-world web applications.
