@@ -7,18 +7,18 @@ import { Routes, Route } from 'react-router-dom'
 
 const App = () => {
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       {/* Offset for fixed navbar */}
-      <div className="pt-20">
+      <main className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
           <Route path="/cart" element={<Cart />} />
         </Routes>
-      </div>
-    </>
+      </main>
+    </div>
   )
 }
 

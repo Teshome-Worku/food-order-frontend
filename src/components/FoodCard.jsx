@@ -1,17 +1,23 @@
 const FoodCard = ({ food }) => {
-    return (
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <img src={food.image} alt={food.name} className="w-full h-40 object-cover" />
-        <div className="p-4">
-          <h3 className="font-semibold text-lg">{food.name}</h3>
-          <p className="text-gray-600">{food.price} ETB</p>
-          <button className="mt-3 w-full bg-orange-500 text-white py-2 rounded-lg">
-            Add to Cart
-          </button>
-        </div>
+  return (
+    <div className="overflow-hidden rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg">
+      <img
+        src={food.image}
+        alt={food.name}
+        className="h-36 w-full object-cover sm:h-40"
+      />
+      <div className="p-4">
+        <h3 className="text-lg font-semibold">{food.name}</h3>
+        <p className="mt-1 text-sm text-gray-600 sm:text-base">{food.price} ETB</p>
+        <button
+          type="button"
+          className="mt-3 w-full rounded-lg bg-orange-500 py-2.5 text-sm font-medium text-white transition hover:bg-orange-600 sm:text-base"
+        >
+          Add to Cart
+        </button>
       </div>
-    )
-  }
-  
-  export default FoodCard
-  
+    </div>
+  )
+}
+
+export default FoodCard
