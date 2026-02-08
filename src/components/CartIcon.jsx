@@ -1,8 +1,11 @@
 import { FiShoppingCart } from "react-icons/fi";
 
-const CartIcon = ({ cartCount }) => {
+const CartIcon = ({ cartCount, onClick }) => {
   return (
-    <div className="relative cursor-pointer">
+    <div
+      onClick={onClick}
+      className="relative cursor-pointer"
+    >
       <FiShoppingCart className="text-2xl text-white" />
 
       {cartCount > 0 && (

@@ -1,8 +1,9 @@
 import { useState,useEffect } from "react"
 import { NavLink } from "react-router-dom"
 import { FiShoppingCart } from "react-icons/fi";
+import CartIcon from "./CartIcon";
 
-const Navbar = () => {
+const Navbar = ({cartCount,onCartClick}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "auto"
@@ -58,9 +59,10 @@ const Navbar = () => {
           </div>
 
           {/* Cart (always visible) */}
-          <NavLink to="/cart" className={cartClass}>
+          <NavLink  className={cartClass}>
             {/* Cart */}
-            <FiShoppingCart className="text-2xl " />
+            {/* <FiShoppingCart className="text-2xl " /> */}
+            <CartIcon cartCount={cartCount} onClick={onCartClick}/>
 
           </NavLink>
 
