@@ -1,72 +1,64 @@
-import { useState,useEffect } from "react"
-import { NavLink } from "react-router-dom"
-import { FiShoppingCart } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import CartIcon from "./CartIcon";
+import { useCart } from "../context/cartContext";
+import { ROUTES } from "../constants";
 
-const Navbar = ({cartCount,onCartClick}) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+const Navbar = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { cartCount, openCart } = useCart();
+
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "auto"
-  }, [isMenuOpen])
-  
+    document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isMenuOpen]);
 
   const navItemClass = ({ isActive }) =>
     [
       "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-      isActive
-        ? "text-orange-500 font-semibold"
-        : "text-gray-700 hover:text-orange-500",
-    ].join(" ")
+      isActive ? "text-orange-500 font-semibold" : "text-gray-700 hover:text-orange-500",
+    ].join(" ");
 
   const mobileNavItemClass = ({ isActive }) =>
     [
       "block rounded-md px-3 py-2 text-base font-medium transition-colors",
-      isActive
-        ? "text-orange-500 font-semibold"
-        : "text-gray-700 hover:text-orange-500",
-    ].join(" ")
+      isActive ? "text-orange-500 font-semibold" : "text-gray-700 hover:text-orange-500",
+    ].join(" ");
 
-  const cartClass = ({ isActive }) =>
-    [
-      "rounded-lg px-2 py-1 text-sm font-medium text-white transition duration-300",
-      isActive ? "bg-orange-600" : "bg-orange-500 hover:bg-orange-600",
-    ].join(" ")
-
-  const closeMenu = () => setIsMenuOpen(false)
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <nav className="fixed top-0 left-0 z-50 w-full bg-white shadow-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        {/* Logo */}
         <NavLink
-          to="/"
+          to={ROUTES.HOME}
           className="text-xl font-bold text-orange-500 sm:text-2xl"
           onClick={closeMenu}
         >
           ማሚ Food
         </NavLink>
 
-        {/* Right side */}
         <div className="flex items-center gap-2">
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-2">
-            <NavLink to="/" end className={navItemClass}>
+          <div className="hidden items-center gap-2 md:flex">
+            <NavLink to={ROUTES.HOME} end className={navItemClass}>
               Home
             </NavLink>
-            <NavLink to="/menu" className={navItemClass}>
+            <NavLink to={ROUTES.MENU} className={navItemClass}>
               Menu
             </NavLink>
           </div>
 
-          {/* Cart (always visible) */}
-          <NavLink  className={cartClass}>
-            {/* Cart */}
-            {/* <FiShoppingCart className="text-2xl " /> */}
-            <CartIcon cartCount={cartCount} onClick={onCartClick}/>
+          <button
+            type="button"
+            onClick={openCart}
+            className="rounded-lg bg-orange-500 px-2 py-1 transition hover:bg-orange-600"
+            aria-label={`Cart with ${cartCount} items`}
+          >
+            <CartIcon cartCount={cartCount} />
+          </button>
 
-          </NavLink>
-
-          {/* Hamburger */}
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 md:hidden"
@@ -108,22 +100,29 @@ const Navbar = ({cartCount,onCartClick}) => {
         </div>
       </div>
 
-      {/* Mobile menu (Home + Menu only) */}
       {isMenuOpen && (
         <div className="border-t border-gray-100 bg-white md:hidden">
           <div className="mx-auto max-w-7xl px-4 py-3">
-            <NavLink to="/" end className={mobileNavItemClass} onClick={closeMenu}>
+            <NavLink
+              to={ROUTES.HOME}
+              end
+              className={mobileNavItemClass}
+              onClick={closeMenu}
+            >
               Home
             </NavLink>
-            <NavLink to="/menu" className={mobileNavItemClass} onClick={closeMenu}>
+            <NavLink
+              to={ROUTES.MENU}
+              className={mobileNavItemClass}
+              onClick={closeMenu}
+            >
               Menu
             </NavLink>
           </div>
         </div>
       )}
     </nav>
-    
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
