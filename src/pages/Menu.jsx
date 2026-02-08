@@ -19,7 +19,7 @@ const foods = [
   },
 ]
 
-const Menu = () => {
+const Menu = ({addToCart}) => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       <h1 className="mb-8 text-center text-2xl font-bold sm:mb-10 sm:text-3xl">
@@ -47,6 +47,7 @@ const Menu = () => {
 
               <button
                 type="button"
+                onClick={()=>addToCart(food)}
                 className="mt-4 w-full rounded-lg bg-orange-500 py-2.5 text-sm font-medium text-white transition hover:bg-orange-600 sm:text-base"
               >
                 Add to Cart

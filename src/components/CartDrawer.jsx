@@ -28,20 +28,50 @@ const CartDrawer = ({ isOpen, onClose, cartItems }) => {
             </button>
           </div>
   
-          <div className="p-4">
+          <div className="p-4 border-b">
             {cartItems.length === 0 ? (
-              <p className="text-gray-500">
+              <p className="text-gray-500 ">
                 Your cart is empty
               </p>
             ) : (
-              cartItems.map((item, index) => (
-                <div key={index} className="mb-3">
-                  {item.name}
-                </div>
-              ))
-            )}
+                cartItems.map(item => (
+                    <div
+                      key={item.id}
+                      className="mb-4 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="h-20 w-20 shrink-0 rounded object-cover transition-all duration-300 hover:scale-105"
+                        />
+
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold leading-tight">
+                            {item.name}
+                          </p>
+                          <p className="text-sm text-gray-500">Qty: {item.qty}</p>
+                        </div>
+                      </div>
+                  
+                      <p className="whitespace-nowrap font-semibold">
+                        {item.price * item.qty} Birr
+                      </p>
+                      
+                    </div>
+                  )))
+                  
+            }
           </div>
         </div>
+        {
+            cartItems.length > 0 && (
+                <div className="flex justify-end ">
+                    <h2>Total:{cartItems.price*cartItems.qty} Birr</h2>
+
+                </div>
+            )
+        }
       </>
     );
   };
