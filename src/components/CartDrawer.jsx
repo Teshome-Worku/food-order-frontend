@@ -1,4 +1,8 @@
+import { useEffect } from "react";
 const CartDrawer = ({ isOpen, onClose, cartItems }) => {
+    useEffect(()=>{
+        document.body.style.overflow = isOpen ? "hidden" : "auto"
+    },[isOpen])
     return (
       <>
         {/* Overlay */}
@@ -41,6 +45,5 @@ const CartDrawer = ({ isOpen, onClose, cartItems }) => {
       </>
     );
   };
-  
   export default CartDrawer;
   

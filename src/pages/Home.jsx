@@ -25,7 +25,7 @@ const Home = () => {
 
           <Link
             to="/menu"
-            className="inline-flex items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-medium text-white transition hover:bg-orange-600 sm:px-8 sm:text-lg"
+            className="inline-flex translate-y-12 items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-medium text-white transition hover:bg-orange-600 sm:translate-y-0 sm:px-8 sm:text-lg"
           >
             Order Now
           </Link>

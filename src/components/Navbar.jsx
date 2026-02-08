@@ -28,7 +28,7 @@ const Navbar = ({cartCount,onCartClick}) => {
 
   const cartClass = ({ isActive }) =>
     [
-      "rounded-lg px-4 py-2 text-sm font-medium text-white transition duration-300",
+      "rounded-lg px-2 py-1 text-sm font-medium text-white transition duration-300",
       isActive ? "bg-orange-600" : "bg-orange-500 hover:bg-orange-600",
     ].join(" ")
 
@@ -99,9 +99,9 @@ const Navbar = ({cartCount,onCartClick}) => {
                 strokeLinejoin="round"
                 className="h-6 w-6"
               >
-                <path d="M4 6h16" />
-                <path d="M4 12h16" />
-                <path d="M4 18h16" />
+                <path d="M4 6h20" />
+                <path d="M4 12h20" />
+                <path d="M4 18h20" />
               </svg>
             )}
           </button>

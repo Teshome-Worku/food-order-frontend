@@ -35,7 +35,7 @@ const Menu = () => {
             <img
               src={food.image}
               alt={food.name}
-              className="h-40 w-full object-cover sm:h-48"
+              className="h-40 w-full object-cover sm:h-48 hover:scale-105 transition duration-300"
             />
 
             <div className="p-4 sm:p-5">
