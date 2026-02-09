@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useCart } from "../context/cartContext";
 import { useToast } from "../context/toastContext";
 import { CURRENCY, ROUTES } from "../constants";
-import { Link } from "react-router-dom";
-import Spinner from "./Spinner";
+import { Link, useNavigate } from "react-router-dom";
 
-const CartDrawer = ({ onPlaceOrder }) => {
+const CartDrawer = () => {
   const {
     cartItems,
     cartTotal,
@@ -13,10 +12,9 @@ const CartDrawer = ({ onPlaceOrder }) => {
     closeCart,
     removeFromCart,
     updateQty,
-    clearCart,
   } = useCart();
   const { showToast } = useToast();
-  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? "hidden" : "auto";
@@ -38,18 +36,9 @@ const CartDrawer = ({ onPlaceOrder }) => {
     }
   };
 
-  const handlePlaceOrder = async () => {
-    setIsPlacingOrder(true);
-    try {
-      await onPlaceOrder?.();
-      clearCart();
-      closeCart();
-      showToast("Order placed successfully!", "success");
-    } catch {
-      showToast("Something went wrong. Try again.", "error");
-    } finally {
-      setIsPlacingOrder(false);
-    }
+  const handleGoToCheckout = () => {
+    closeCart();
+    navigate(ROUTES.CART);
   };
 
   return (
@@ -146,8 +135,8 @@ const CartDrawer = ({ onPlaceOrder }) => {
           </div>
 
           {cartItems.length > 0 && (
-            <div className="border-t p-4">
-              <div className="mb-4 flex justify-between text-lg font-bold">
+            <div className="border-t p-4 space-y-4">
+              <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
                 <span>
                   {cartTotal} {CURRENCY}
@@ -155,18 +144,10 @@ const CartDrawer = ({ onPlaceOrder }) => {
               </div>
               <button
                 type="button"
-                onClick={handlePlaceOrder}
-                disabled={isPlacingOrder}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70"
+                onClick={handleGoToCheckout}
+                className="w-full rounded-lg bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
               >
-                {isPlacingOrder ? (
-                  <>
-                    <Spinner size="sm" />
-                    Placing order...
-                  </>
-                ) : (
-                  "Place Order"
-                )}
+                Checkout
               </button>
             </div>
           )}
