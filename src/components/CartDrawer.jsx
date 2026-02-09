@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useCart } from "../context/cartContext";
 import { CURRENCY } from "../constants";
+import { Link } from "react-router-dom";
+import { ROUTES } from "../constants";
 
 const CartDrawer = ({ onPlaceOrder }) => {
   const {
@@ -11,6 +13,7 @@ const CartDrawer = ({ onPlaceOrder }) => {
     removeFromCart,
     updateQty,
     clearCart,
+    openCart,
   } = useCart();
 
   useEffect(() => {
@@ -61,7 +64,11 @@ const CartDrawer = ({ onPlaceOrder }) => {
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4">
             {cartItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-between h-full">
               <p className="text-gray-500">Your cart is empty</p>
+              <Link to={ROUTES.MENU} onClick={closeCart} className="w-full text-center inline-block rounded-lg bg-orange-500 px-6 py-2 font-medium text-white transition hover:bg-orange-600">Browse Menu</Link>
+              
+            </div>
             ) : (
               cartItems.map((item) => (
                 <div

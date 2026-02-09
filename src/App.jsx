@@ -26,7 +26,7 @@ const App = () => {
         <Routes>
           <Route path={ROUTES.HOME} element={<Home />} />
           <Route path={ROUTES.MENU} element={<Menu />} />
-          <Route path={ROUTES.CART} element={<Cart />} />
+          {/* <Route path={ROUTES.CART} element={<Cart />} /> */}
           <Route path={ROUTES.SUCCESS} element={<Success />} />
         </Routes>
       </main>
