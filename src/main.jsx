@@ -4,13 +4,16 @@ import { BrowserRouter } from "react-router-dom"
 
 import App from "./App.jsx"
 import { CartProvider } from "./context/cartContext.jsx"
+import { ToastProvider } from "./context/toastContext.jsx"
 import "./index.css"
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <CartProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </CartProvider>
     </BrowserRouter>
   </StrictMode>,

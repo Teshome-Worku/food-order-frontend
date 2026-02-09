@@ -1,6 +1,15 @@
 import { CURRENCY } from "../constants";
+import { useToast } from "../context/toastContext";
 
-const FoodCard = ({ food, onAddToCart }) => (
+const FoodCard = ({ food, onAddToCart }) => {
+  const { showToast } = useToast();
+
+  const handleAddToCart = () => {
+    onAddToCart?.(food);
+    showToast(`${food.name} added to cart`, "success");
+  };
+
+  return (
   <div className="overflow-hidden rounded-xl bg-white shadow transition-shadow hover:shadow-lg">
     <img
       src={food.image}
@@ -14,13 +23,14 @@ const FoodCard = ({ food, onAddToCart }) => (
       </p>
       <button
         type="button"
-        onClick={() => onAddToCart?.(food)}
+        onClick={handleAddToCart}
         className="mt-4 w-full rounded-lg bg-orange-500 py-2.5 text-sm font-medium text-white transition hover:bg-orange-600 sm:text-base"
       >
         Add to Cart
       </button>
     </div>
   </div>
-);
+  );
+};
 
 export default FoodCard;

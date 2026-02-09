@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "../context/cartContext";
-import { CURRENCY } from "../constants";
+import { useToast } from "../context/toastContext";
+import { CURRENCY, ROUTES } from "../constants";
 import { Link } from "react-router-dom";
-import { ROUTES } from "../constants";
+import Spinner from "./Spinner";
 
 const CartDrawer = ({ onPlaceOrder }) => {
   const {
@@ -13,8 +14,9 @@ const CartDrawer = ({ onPlaceOrder }) => {
     removeFromCart,
     updateQty,
     clearCart,
-    openCart,
   } = useCart();
+  const { showToast } = useToast();
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? "hidden" : "auto";
@@ -23,10 +25,31 @@ const CartDrawer = ({ onPlaceOrder }) => {
     };
   }, [isCartOpen]);
 
-  const handlePlaceOrder = () => {
-    onPlaceOrder?.();
-    clearCart();
-    closeCart();
+  const handleRemoveItem = (item) => {
+    removeFromCart(item.id);
+    showToast(`${item.name} removed from cart`, "info");
+  };
+
+  const handleUpdateQty = (item, delta) => {
+    const willRemove = item.qty === 1 && delta === -1;
+    updateQty(item.id, delta);
+    if (willRemove) {
+      showToast(`${item.name} removed from cart`, "info");
+    }
+  };
+
+  const handlePlaceOrder = async () => {
+    setIsPlacingOrder(true);
+    try {
+      await onPlaceOrder?.();
+      clearCart();
+      closeCart();
+      showToast("Order placed successfully!", "success");
+    } catch {
+      showToast("Something went wrong. Try again.", "error");
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   return (
@@ -86,7 +109,7 @@ const CartDrawer = ({ onPlaceOrder }) => {
                       <div className="mt-1 flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => updateQty(item.id, -1)}
+                          onClick={() => handleUpdateQty(item, -1)}
                           className="h-6 w-6 rounded bg-gray-200 text-sm font-bold hover:bg-gray-300"
                           aria-label={`Decrease ${item.name} quantity`}
                         >
@@ -95,7 +118,7 @@ const CartDrawer = ({ onPlaceOrder }) => {
                         <span className="text-sm text-gray-500">{item.qty}</span>
                         <button
                           type="button"
-                          onClick={() => updateQty(item.id, 1)}
+                          onClick={() => handleUpdateQty(item, 1)}
                           className="h-6 w-6 rounded bg-gray-200 text-sm font-bold hover:bg-gray-300"
                           aria-label={`Increase ${item.name} quantity`}
                         >
@@ -110,7 +133,7 @@ const CartDrawer = ({ onPlaceOrder }) => {
                     </p>
                     <button
                       type="button"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => handleRemoveItem(item)}
                       className="text-xs text-red-500 hover:text-red-700"
                       aria-label={`Remove ${item.name}`}
                     >
@@ -133,9 +156,17 @@ const CartDrawer = ({ onPlaceOrder }) => {
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                className="w-full rounded-lg bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
+                disabled={isPlacingOrder}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Place Order
+                {isPlacingOrder ? (
+                  <>
+                    <Spinner size="sm" />
+                    Placing order...
+                  </>
+                ) : (
+                  "Place Order"
+                )}
               </button>
             </div>
           )}
