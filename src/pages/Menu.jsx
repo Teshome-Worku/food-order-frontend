@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useCart } from "../context/cartContext";
 import FoodCard from "../components/FoodCard";
 import { API_ENDPOINTS } from "../constants";
-
 const Menu = () => {
   const { addToCart } = useCart();
   const [menuItems, setMenuItems] = useState([]);

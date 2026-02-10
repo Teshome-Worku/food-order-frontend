@@ -14,25 +14,30 @@ const App = () => {
   const navigate = useNavigate();
 
   const handlePlaceOrder = async (order) => {
-    const res = await fetch(API_ENDPOINTS.ORDERS, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(order),
-    });
+    try {
+      const res = await fetch(API_ENDPOINTS.ORDERS, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(order),
+      });
   
-    const data = await res.json();
+      const data = await res.json();
   
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to place order");
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to place order");
+      }
+  
+      navigate(ROUTES.SUCCESS, {
+        state: { orderId: data.orderId },
+      });
+    } catch (error) {
+      console.error("Place order error:", error);
+      throw error; // important → Cart.jsx handles toast
     }
-    console.log("backend response ",data)
-  
-    navigate(ROUTES.SUCCESS, {
-      state: { orderId: data.orderId },
-    });
   };
+  
   
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
