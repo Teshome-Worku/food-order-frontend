@@ -8,17 +8,32 @@ import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
 import Success from "./pages/Success";
 
-import { ROUTES } from "./constants";
+import { API_ENDPOINTS, ROUTES } from "./constants";
 
 const App = () => {
   const navigate = useNavigate();
 
-  const handlePlaceOrder = (order) => {
-    // Later this will send `order` to the backend
-    console.log("New order:", order);
-    navigate(ROUTES.SUCCESS);
+  const handlePlaceOrder = async (order) => {
+    const res = await fetch(API_ENDPOINTS.ORDERS, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(order),
+    });
+  
+    const data = await res.json();
+  
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to place order");
+    }
+    console.log("backend response ",data)
+  
+    navigate(ROUTES.SUCCESS, {
+      state: { orderId: data.orderId },
+    });
   };
-
+  
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar />
