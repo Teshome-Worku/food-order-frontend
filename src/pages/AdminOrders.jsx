@@ -66,7 +66,7 @@ const AdminOrders = () => {
                 <ul className="list-disc pl-5 text-sm text-gray-700">
                   {order.items.map((item, index) => (
                     <li key={index}>
-                      {item.name} × {item.quantity}
+                      {item.name} × {item.qty}
                     </li>
                   ))}
                 </ul>
