@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
 import Success from "./pages/Success";
+import AdminOrders from "./pages/AdminOrders";
 
 import { API_ENDPOINTS, ROUTES } from "./constants";
 
@@ -52,6 +53,7 @@ const App = () => {
             path={ROUTES.CART}
             element={<Cart onPlaceOrder={handlePlaceOrder} />}
           />
+          <Route path={ROUTES.ADMIN} element={<AdminOrders/>} />
           <Route path={ROUTES.SUCCESS} element={<Success />} />
         </Routes>
       </main>

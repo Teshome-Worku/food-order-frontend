@@ -7,6 +7,7 @@ export const ROUTES = {
     MENU: "/menu",
     CART: "/cart",
     SUCCESS: "/success",
+    ADMIN: "/admin"
 };
 
 const rawApiBaseUrl =
