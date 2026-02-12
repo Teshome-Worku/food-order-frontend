@@ -58,9 +58,7 @@ const Navbar = () => {
           >
             <CartIcon cartCount={cartCount} />
           </button>
-          <NavLink to={ROUTES.ADMIN} className={navItemClass}>Admin
-
-          </NavLink>
+          
 
           <button
             type="button"
