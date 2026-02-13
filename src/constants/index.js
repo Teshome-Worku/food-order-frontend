@@ -2,6 +2,13 @@
 
 export const CURRENCY = "Birr";
 
+export const ORDER_STATUSES = [
+    { value: "pending", label: "Pending" },
+    { value: "preparing", label: "Preparing" },
+    { value: "ready", label: "Ready" },
+    { value: "delivered", label: "Delivered" },
+];
+
 export const ROUTES = {
   HOME: "/",
   MENU: "/menu",

@@ -63,7 +63,7 @@ function NavItem({ to, label }) {
       className={({ isActive }) =>
         `block px-4 py-2 rounded-lg transition ${
           isActive
-            ? "bg-gray-700"
+            ? "bg-gray-700 border-l-4 border-orange-500"
             : "hover:bg-gray-800"
         }`
       }

@@ -47,6 +47,12 @@ export const api = {
 
     getOrders: () => fetchWithAuth(API_ENDPOINTS.ORDERS),
 
+    updateOrderStatus: (orderId, status) =>
+        fetchWithAuth(`${API_ENDPOINTS.ORDERS}/${orderId}`, {
+            method: "PUT",
+            body: JSON.stringify({ status }),
+        }),
+
     adminLogin: (email, password) =>
         fetchJson(API_ENDPOINTS.ADMIN_LOGIN, {
             method: "POST",

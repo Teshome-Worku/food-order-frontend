@@ -3,13 +3,45 @@ import { useNavigate } from "react-router-dom";
 
 import Spinner from "../../components/Spinner";
 import { api } from "../../services/api";
-import { CURRENCY, ROUTES, STORAGE_KEYS } from "../../constants";
+import {
+  CURRENCY,
+  ORDER_STATUSES,
+  ROUTES,
+  STORAGE_KEYS,
+} from "../../constants";
+
+const STATUS_BADGE_STYLES = {
+  pending: "bg-amber-100 text-amber-800",
+  preparing: "bg-blue-100 text-blue-800",
+  ready: "bg-green-100 text-green-800",
+  delivered: "bg-gray-100 text-gray-700",
+};
 
 const AdminOrders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingOrderId, setUpdatingOrderId] = useState(null);
+
+  const loadOrders = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await api.getOrders();
+      const nextOrders = Array.isArray(data) ? data : data?.orders ?? [];
+      setOrders(Array.isArray(nextOrders) ? nextOrders : []);
+    } catch (err) {
+      if (err?.message?.includes("401") || err?.message?.includes("403")) {
+        localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
+        navigate(ROUTES.ADMIN_LOGIN, { replace: true });
+        return;
+      }
+      setError(err instanceof Error ? err.message : "Failed to fetch orders");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
@@ -17,31 +49,26 @@ const AdminOrders = () => {
       navigate(ROUTES.ADMIN_LOGIN, { replace: true });
       return;
     }
-
-    const controller = new AbortController();
-
-    const loadOrders = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const data = await api.getOrders();
-        const nextOrders = Array.isArray(data) ? data : data?.orders ?? [];
-        setOrders(Array.isArray(nextOrders) ? nextOrders : []);
-      } catch (err) {
-        if (err?.message?.includes("401") || err?.message?.includes("403")) {
-          localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
-          navigate(ROUTES.ADMIN_LOGIN, { replace: true });
-          return;
-        }
-        setError(err instanceof Error ? err.message : "Failed to fetch orders");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadOrders();
-    return () => controller.abort();
   }, [navigate]);
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    setUpdatingOrderId(orderId);
+    try {
+      const data = await api.updateOrderStatus(orderId, newStatus);
+      const updatedOrder = data?.order;
+      if (updatedOrder) {
+        setOrders((prev) =>
+          prev.map((o) => (o.id === orderId ? updatedOrder : o))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to update order status:", err);
+      setError(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -76,17 +103,32 @@ const AdminOrders = () => {
           key={order.id}
           className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <h3 className="font-semibold">Order #{order.id}</h3>
-            <span
-              className={`rounded-full px-2 py-1 text-xs font-medium ${
-                order.status === "pending"
-                  ? "bg-amber-100 text-amber-800"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {order.status}
-            </span>
+            <div className="flex items-center gap-3">
+              <span
+                className={`rounded-full px-2 py-1 text-xs font-medium ${
+                  STATUS_BADGE_STYLES[order.status] ?? "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {order.status}
+              </span>
+              <select
+                value={order.status}
+                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                disabled={updatingOrderId === order.id}
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {ORDER_STATUSES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+              {updatingOrderId === order.id && (
+                <Spinner size="sm" className="border-orange-500" />
+              )}
+            </div>
           </div>
 
           <div className="mt-3 space-y-1 text-sm text-gray-600">
