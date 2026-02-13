@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../context/cartContext";
 import FoodCard from "../components/FoodCard";
-import { API_ENDPOINTS } from "../constants";
+import { api } from "../services/api";
+
 const Menu = () => {
   const { addToCart } = useCart();
   const [menuItems, setMenuItems] = useState([]);
@@ -10,36 +11,26 @@ const Menu = () => {
   const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let cancelled = false;
 
     const loadMenu = async () => {
       setLoading(true);
       setError(null);
-
       try {
-        const res = await fetch(API_ENDPOINTS.MENU, { signal: controller.signal });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data?.message || `Failed to load menu (${res.status})`);
-        }
-
-        const items = Array.isArray(data) ? data : data?.menuItems || data?.menuData || [];
-        setMenuItems(items);
+        const data = await api.getMenu();
+        const items = Array.isArray(data) ? data : data?.menuItems ?? data?.menu ?? [];
+        if (!cancelled) setMenuItems(items);
       } catch (err) {
-        if (!controller.signal.aborted) {
+        if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load menu");
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadMenu();
-
-    return () => controller.abort();
+    return () => { cancelled = true; };
   }, [reloadToken]);
 
   return (

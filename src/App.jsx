@@ -1,62 +1,69 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import CartDrawer from "./components/CartDrawer";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import Menu from "./pages/Menu";
+import CustomerMenu from "./pages/Menu";
 import Cart from "./pages/Cart";
 import Success from "./pages/Success";
+import AdminLogin from "./pages/AdminLogin";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOrders from "./pages/admin/Orders";
+import AdminMenu from "./pages/admin/Menu";
+import Announcements from "./pages/admin/Announcements";
+import Settings from "./pages/admin/Settings";
 
-import { API_ENDPOINTS, ROUTES } from "./constants";
+import { api } from "./services/api";
+import { ROUTES } from "./constants";
 
 const App = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith(ROUTES.ADMIN);
 
   const handlePlaceOrder = async (order) => {
-    try {
-      const res = await fetch(API_ENDPOINTS.ORDERS, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(order),
-      });
-  
-      const data = await res.json();
-  
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to place order");
-      }
-  
-      navigate(ROUTES.SUCCESS, {
-        state: { orderId: data.orderId },
-      });
-    } catch (error) {
-      console.error("Place order error:", error);
-      throw error; // important → Cart.jsx handles toast
-    }
+    const data = await api.createOrder(order);
+    navigate(ROUTES.SUCCESS, { state: { orderId: data.orderId } });
   };
-  
-  
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      <Navbar />
-      <CartDrawer />
+      {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && <CartDrawer />}
 
-      <main className="flex-1 pt-16">
+      <main className={`flex-1 ${!isAdminRoute ? "pt-16" : ""}`}>
         <Routes>
+          {/* Customer routes */}
           <Route path={ROUTES.HOME} element={<Home />} />
-          <Route path={ROUTES.MENU} element={<Menu />} />
+          <Route path={ROUTES.MENU} element={<CustomerMenu />} />
           <Route
             path={ROUTES.CART}
             element={<Cart onPlaceOrder={handlePlaceOrder} />}
           />
           <Route path={ROUTES.SUCCESS} element={<Success />} />
+
+          {/* Admin routes */}
+          <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLogin />} />
+          <Route path={ROUTES.ADMIN} element={<AdminLayout />}>
+            <Route index element={<Navigate to="orders" replace />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="menu" element={<AdminMenu />} />
+            <Route path="announcements" element={<Announcements />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
         </Routes>
       </main>
 
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </div>
   );
 };
