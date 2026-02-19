@@ -1,19 +1,56 @@
-import { createContext, useContext, useState, useCallback } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 const ToastContext = createContext(null);
 
 const TOAST_DURATION = 3000;
 
+const buildToastId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const timersRef = useRef(new Map());
 
-  const showToast = useCallback((message, type = "success") => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, TOAST_DURATION);
+  const removeToast = useCallback((id) => {
+    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
   }, []);
+
+  const showToast = useCallback(
+    (message, type = "success") => {
+      const id = buildToastId();
+      setToasts((prevToasts) => [...prevToasts, { id, message, type }]);
+
+      const timer = setTimeout(() => {
+        removeToast(id);
+      }, TOAST_DURATION);
+
+      timersRef.current.set(id, timer);
+    },
+    [removeToast]
+  );
+
+  useEffect(
+    () => () => {
+      for (const timer of timersRef.current.values()) {
+        clearTimeout(timer);
+      }
+      timersRef.current.clear();
+    },
+    []
+  );
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -37,26 +74,18 @@ const ToastContainer = ({ toasts }) => (
 
 const Toast = ({ message, type }) => {
   const styles = {
-    success: "bg-green-600 text-white border-green-700",
-    error: "bg-red-600 text-white border-red-700",
-    info: "bg-blue-600 text-white border-blue-700",
+    success: "border-green-700 bg-green-600 text-white",
+    error: "border-red-700 bg-red-600 text-white",
+    info: "border-blue-700 bg-blue-600 text-white",
   };
 
   return (
     <div
-      className={`flex items-center gap-2 rounded-lg border px-4 py-3 shadow-lg animate-toast-in ${styles[type] || styles.success}`}
+      className={`animate-toast-in flex items-center gap-2 rounded-lg border px-4 py-3 shadow-lg ${styles[type] || styles.success}`}
       role="alert"
     >
-      {type === "success" && (
-        <span className="text-lg" aria-hidden="true">
-          ✓
-        </span>
-      )}
-      {type === "error" && (
-        <span className="text-lg" aria-hidden="true">
-          ✕
-        </span>
-      )}
+      {type === "success" ? <span aria-hidden="true">OK</span> : null}
+      {type === "error" ? <span aria-hidden="true">X</span> : null}
       <span>{message}</span>
     </div>
   );

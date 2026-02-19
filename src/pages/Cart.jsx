@@ -1,29 +1,40 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+
+import { ROUTES } from "../constants";
 import { useCart } from "../context/cartContext";
 import { useToast } from "../context/toastContext";
-import { CURRENCY, ROUTES } from "../constants";
+import { formatCurrency } from "../utils/formatters";
+
+const REQUIRED_FIELDS = ["name", "phone", "address"];
 
 const Cart = ({ onPlaceOrder }) => {
   const { cartItems, cartTotal, cartCount, clearCart } = useCart();
   const { showToast } = useToast();
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
+  const [customer, setCustomer] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    notes: "",
+  });
   const [errors, setErrors] = useState({});
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
+  const updateCustomerField = (field, value) => {
+    setCustomer((prev) => ({ ...prev, [field]: value }));
+  };
+
   const validateForm = () => {
-    const newErrors = {};
+    const nextErrors = REQUIRED_FIELDS.reduce((acc, field) => {
+      if (!customer[field].trim()) {
+        acc[field] = `${field[0].toUpperCase()}${field.slice(1)} is required`;
+      }
+      return acc;
+    }, {});
 
-    if (!name.trim()) newErrors.name = "Name is required";
-    if (!phone.trim()) newErrors.phone = "Phone is required";
-    if (!address.trim()) newErrors.address = "Address is required";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
       showToast("Please fill in all required fields", "error");
       return false;
     }
@@ -32,34 +43,30 @@ const Cart = ({ onPlaceOrder }) => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!validateForm()) return;
 
     setIsPlacingOrder(true);
 
-    const trimmedNotes = notes.trim();
+    const trimmedNotes = customer.notes.trim();
     const order = {
       customer: {
-        name: name.trim(),
-        phone: phone.trim(),
-        address: address.trim(),
+        name: customer.name.trim(),
+        phone: customer.phone.trim(),
+        address: customer.address.trim(),
         ...(trimmedNotes && { notes: trimmedNotes }),
       },
       items: cartItems,
       total: cartTotal,
-      createdAt: new Date().toISOString(),
     };
 
     try {
       await onPlaceOrder?.(order);
       clearCart();
-      setName("");
-      setPhone("");
-      setAddress("");
-      setNotes("");
+      setCustomer({ name: "", phone: "", address: "", notes: "" });
       setErrors({});
-      showToast("Order placed successfully!", "success");
+      showToast("Order placed successfully", "success");
     } catch {
       showToast("Something went wrong. Try again.", "error");
     } finally {
@@ -93,7 +100,6 @@ const Cart = ({ onPlaceOrder }) => {
       </h1>
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
-        {/* Order summary */}
         <div className="space-y-4 rounded-xl bg-white p-4 shadow sm:p-5">
           <h2 className="text-lg font-semibold">Your Order</h2>
           <ul className="divide-y divide-gray-200">
@@ -105,25 +111,20 @@ const Cart = ({ onPlaceOrder }) => {
                 <div>
                   <p className="font-medium">{item.name}</p>
                   <p className="text-gray-500">
-                    Qty: {item.qty} × {item.price} {CURRENCY}
+                    Qty: {item.qty} x {formatCurrency(item.price)}
                   </p>
                 </div>
-                <p className="font-semibold">
-                  {item.price * item.qty} {CURRENCY}
-                </p>
+                <p className="font-semibold">{formatCurrency(item.price * item.qty)}</p>
               </li>
             ))}
           </ul>
 
           <div className="mt-4 flex items-center justify-between border-t pt-4 text-base font-semibold">
             <span>Total</span>
-            <span>
-              {cartTotal} {CURRENCY}
-            </span>
+            <span>{formatCurrency(cartTotal)}</span>
           </div>
         </div>
 
-        {/* Customer details form */}
         <form
           onSubmit={handleSubmit}
           className="space-y-4 rounded-xl bg-white p-4 shadow sm:p-5"
@@ -136,14 +137,12 @@ const Cart = ({ onPlaceOrder }) => {
             </label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={customer.name}
+              onChange={(event) => updateCustomerField("name", event.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               placeholder="Your name"
             />
-            {errors.name && (
-              <p className="text-xs text-red-500">{errors.name}</p>
-            )}
+            {errors.name ? <p className="text-xs text-red-500">{errors.name}</p> : null}
           </div>
 
           <div className="space-y-1">
@@ -152,14 +151,12 @@ const Cart = ({ onPlaceOrder }) => {
             </label>
             <input
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={customer.phone}
+              onChange={(event) => updateCustomerField("phone", event.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               placeholder="09..."
             />
-            {errors.phone && (
-              <p className="text-xs text-red-500">{errors.phone}</p>
-            )}
+            {errors.phone ? <p className="text-xs text-red-500">{errors.phone}</p> : null}
           </div>
 
           <div className="space-y-1">
@@ -168,14 +165,12 @@ const Cart = ({ onPlaceOrder }) => {
             </label>
             <input
               type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={customer.address}
+              onChange={(event) => updateCustomerField("address", event.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               placeholder="Your address or location"
             />
-            {errors.address && (
-              <p className="text-xs text-red-500">{errors.address}</p>
-            )}
+            {errors.address ? <p className="text-xs text-red-500">{errors.address}</p> : null}
           </div>
 
           <div className="space-y-1">
@@ -183,8 +178,8 @@ const Cart = ({ onPlaceOrder }) => {
               Notes (optional)
             </label>
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={customer.notes}
+              onChange={(event) => updateCustomerField("notes", event.target.value)}
               rows={3}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               placeholder="Any extra instructions"

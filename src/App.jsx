@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import CustomerMenu from "./pages/Menu";
 import Cart from "./pages/Cart";
 import Success from "./pages/Success";
+import TrackOrder from "./pages/TrackOrder";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOrders from "./pages/admin/Orders";
@@ -30,7 +31,12 @@ const App = () => {
 
   const handlePlaceOrder = async (order) => {
     const data = await api.createOrder(order);
-    navigate(ROUTES.SUCCESS, { state: { orderId: data.orderId } });
+    navigate(ROUTES.SUCCESS, {
+      state: {
+        orderId: data.orderId,
+        trackingCode: data.trackingCode,
+      },
+    });
   };
 
   return (
@@ -48,6 +54,7 @@ const App = () => {
             element={<Cart onPlaceOrder={handlePlaceOrder} />}
           />
           <Route path={ROUTES.SUCCESS} element={<Success />} />
+          <Route path={ROUTES.TRACK_ORDER} element={<TrackOrder />} />
 
           {/* Admin routes */}
           <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLogin />} />

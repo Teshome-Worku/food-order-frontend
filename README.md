@@ -1,10 +1,14 @@
-Food Order Frontend is a modern and responsive food ordering web application built with React and Tailwind CSS.
+Food Order Frontend is a responsive food ordering app built with React and Tailwind CSS.
 
-The project focuses on creating a clean, user-friendly interface for browsing food menus, adding items to a cart, and preparing orders for submission. It is designed with scalability and real-world usage in mind, following best practices in component structure, routing, and UI design.
+Core customer features:
+- Menu browsing and add-to-cart flow
+- Cart drawer + checkout form
+- Order success screen with tracking credentials
+- Dedicated order tracking page (`/track-order`) using order ID + tracking code
 
-Key features include a modern landing page, menu listing with food cards, cart-ready interactions, and client-side routing using React Router for smooth navigation. The UI is optimized for both desktop and mobile devices, ensuring an accessible and intuitive user experience.
-
-This frontend is intended to integrate with a backend API for order processing and real-time notifications (such as Telegram bot integration) in later stages. The project demonstrates practical frontend development skills, clean code organization, and an understanding of building real-world web applications.
+Core admin features:
+- Secure login
+- Order dashboard with status updates (`pending`, `preparing`, `ready`, `delivered`)
 
 ## Environment variables
 

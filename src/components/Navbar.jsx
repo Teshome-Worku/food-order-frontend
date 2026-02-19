@@ -1,43 +1,44 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
+
 import CartIcon from "./CartIcon";
+import useBodyScrollLock from "../hooks/useBodyScrollLock";
+import { BRAND_NAME, ROUTES } from "../constants";
 import { useCart } from "../context/cartContext";
-import { ROUTES } from "../constants";
+
+const navItemClass = ({ isActive }) =>
+  [
+    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+    isActive
+      ? "font-semibold text-orange-500"
+      : "text-gray-700 hover:text-orange-500",
+  ].join(" ");
+
+const mobileNavItemClass = ({ isActive }) =>
+  [
+    "block rounded-md px-3 py-2 text-base font-medium transition-colors",
+    isActive
+      ? "font-semibold text-orange-500"
+      : "text-gray-700 hover:text-orange-500",
+  ].join(" ");
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartCount, openCart } = useCart();
 
-  useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isMenuOpen]);
-
-  const navItemClass = ({ isActive }) =>
-    [
-      "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-      isActive ? "text-orange-500 font-semibold" : "text-gray-700 hover:text-orange-500",
-    ].join(" ");
-
-  const mobileNavItemClass = ({ isActive }) =>
-    [
-      "block rounded-md px-3 py-2 text-base font-medium transition-colors",
-      isActive ? "text-orange-500 font-semibold" : "text-gray-700 hover:text-orange-500",
-    ].join(" ");
+  useBodyScrollLock(isMenuOpen);
 
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <nav className="fixed top-0 left-0 z-50 w-full bg-white shadow-md">
+    <nav className="fixed left-0 top-0 z-50 w-full bg-white shadow-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <NavLink
           to={ROUTES.HOME}
           className="text-xl font-bold text-orange-500 sm:text-2xl"
           onClick={closeMenu}
         >
-          ማሚ Food
+          {BRAND_NAME}
         </NavLink>
 
         <div className="flex items-center gap-2">
@@ -47,6 +48,9 @@ const Navbar = () => {
             </NavLink>
             <NavLink to={ROUTES.MENU} className={navItemClass}>
               Menu
+            </NavLink>
+            <NavLink to={ROUTES.TRACK_ORDER} className={navItemClass}>
+              Track Order
             </NavLink>
           </div>
 
@@ -58,7 +62,6 @@ const Navbar = () => {
           >
             <CartIcon cartCount={cartCount} />
           </button>
-          
 
           <button
             type="button"
@@ -118,6 +121,13 @@ const Navbar = () => {
               onClick={closeMenu}
             >
               Menu
+            </NavLink>
+            <NavLink
+              to={ROUTES.TRACK_ORDER}
+              className={mobileNavItemClass}
+              onClick={closeMenu}
+            >
+              Track Order
             </NavLink>
           </div>
         </div>

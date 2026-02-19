@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+import { ROUTES } from "../constants";
+import useBodyScrollLock from "../hooks/useBodyScrollLock";
 import { useCart } from "../context/cartContext";
 import { useToast } from "../context/toastContext";
-import { CURRENCY, ROUTES } from "../constants";
-import { Link, useNavigate } from "react-router-dom";
+import { formatCurrency } from "../utils/formatters";
 
 const CartDrawer = () => {
   const {
@@ -16,12 +18,7 @@ const CartDrawer = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    document.body.style.overflow = isCartOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isCartOpen]);
+  useBodyScrollLock(isCartOpen);
 
   const handleRemoveItem = (item) => {
     removeFromCart(item.id);
@@ -31,6 +28,7 @@ const CartDrawer = () => {
   const handleUpdateQty = (item, delta) => {
     const willRemove = item.qty === 1 && delta === -1;
     updateQty(item.id, delta);
+
     if (willRemove) {
       showToast(`${item.name} removed from cart`, "info");
     }
@@ -43,7 +41,6 @@ const CartDrawer = () => {
 
   return (
     <>
-      {/* Overlay */}
       {isCartOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40"
@@ -52,9 +49,8 @@ const CartDrawer = () => {
         />
       )}
 
-      {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 flex h-full w-80 flex-col transform bg-white shadow-xl transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-50 flex h-full w-80 transform flex-col bg-white shadow-xl transition-transform duration-300 ${
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
@@ -69,18 +65,23 @@ const CartDrawer = () => {
             className="rounded p-1 text-xl font-bold hover:bg-gray-100"
             aria-label="Close cart"
           >
-            ✕
+            X
           </button>
         </div>
 
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-between h-full">
-              <p className="text-gray-500">Your cart is empty</p>
-              <Link to={ROUTES.MENU} onClick={closeCart} className="w-full text-center inline-block rounded-lg bg-orange-500 px-6 py-2 font-medium text-white transition hover:bg-orange-600">Browse Menu</Link>
-              
-            </div>
+              <div className="flex h-full flex-col items-center justify-between">
+                <p className="text-gray-500">Your cart is empty</p>
+                <Link
+                  to={ROUTES.MENU}
+                  onClick={closeCart}
+                  className="inline-block w-full rounded-lg bg-orange-500 px-6 py-2 text-center font-medium text-white transition hover:bg-orange-600"
+                >
+                  Browse Menu
+                </Link>
+              </div>
             ) : (
               cartItems.map((item) => (
                 <div
@@ -102,7 +103,7 @@ const CartDrawer = () => {
                           className="h-6 w-6 rounded bg-gray-200 text-sm font-bold hover:bg-gray-300"
                           aria-label={`Decrease ${item.name} quantity`}
                         >
-                          −
+                          -
                         </button>
                         <span className="text-sm text-gray-500">{item.qty}</span>
                         <button
@@ -118,7 +119,7 @@ const CartDrawer = () => {
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <p className="whitespace-nowrap font-semibold">
-                      {item.price * item.qty} {CURRENCY}
+                      {formatCurrency(item.price * item.qty)}
                     </p>
                     <button
                       type="button"
@@ -135,12 +136,10 @@ const CartDrawer = () => {
           </div>
 
           {cartItems.length > 0 && (
-            <div className="border-t p-4 space-y-4">
+            <div className="space-y-4 border-t p-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span>
-                  {cartTotal} {CURRENCY}
-                </span>
+                <span>{formatCurrency(cartTotal)}</span>
               </div>
               <button
                 type="button"

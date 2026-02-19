@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ROUTES } from "../constants";
+
+import { BRAND_NAME, ROUTES } from "../constants";
 
 const Home = () => (
   <>
@@ -16,21 +17,29 @@ const Home = () => (
           Delicious Food, Delivered Fast
         </h1>
         <p className="mb-6 text-base text-gray-200 sm:text-lg md:text-xl">
-          Order your favorite meals from ማሚ Food with just one click
+          Order your favorite meals from {BRAND_NAME} with just one click
         </p>
-        <Link
-          to={ROUTES.MENU}
-          className="inline-flex translate-y-12 items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-medium text-white transition hover:bg-orange-600 sm:translate-y-0 sm:px-8 sm:text-lg"
-        >
-          Order Now
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to={ROUTES.MENU}
+            className="inline-flex items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-medium text-white transition hover:bg-orange-600 sm:px-8 sm:text-lg"
+          >
+            Order Now
+          </Link>
+          <Link
+            to={ROUTES.TRACK_ORDER}
+            className="inline-flex items-center justify-center rounded-lg border border-white px-6 py-3 text-base font-medium text-white transition hover:bg-white hover:text-gray-900 sm:px-8 sm:text-lg"
+          >
+            Track Existing Order
+          </Link>
+        </div>
       </div>
     </section>
 
     <section className="bg-gray-50 py-12 sm:py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <h2 className="mb-8 text-center text-2xl font-bold sm:mb-12 sm:text-3xl">
-          Why Choose ማሚ Food?
+          Why Choose {BRAND_NAME}?
         </h2>
         <div className="grid gap-6 sm:gap-8 md:grid-cols-3">
           <div className="rounded-xl bg-white p-5 text-center shadow sm:p-6">

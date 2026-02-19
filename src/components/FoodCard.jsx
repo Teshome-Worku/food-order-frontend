@@ -1,5 +1,5 @@
-import { CURRENCY } from "../constants";
 import { useToast } from "../context/toastContext";
+import { formatCurrency } from "../utils/formatters";
 
 const FoodCard = ({ food, onAddToCart }) => {
   const { showToast } = useToast();
@@ -18,8 +18,13 @@ const FoodCard = ({ food, onAddToCart }) => {
     />
     <div className="p-4 sm:p-5">
       <h3 className="text-lg font-semibold sm:text-xl">{food.name}</h3>
+      {food.category ? (
+        <p className="mt-1 text-xs uppercase tracking-wide text-gray-400">
+          {food.category}
+        </p>
+      ) : null}
       <p className="mt-1 text-sm text-gray-600 sm:mt-2 sm:text-base">
-        {food.price} {CURRENCY}
+        {formatCurrency(food.price)}
       </p>
       <button
         type="button"

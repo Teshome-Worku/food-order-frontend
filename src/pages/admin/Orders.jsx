@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Spinner from "../../components/Spinner";
-import { api } from "../../services/api";
 import {
-  CURRENCY,
   ORDER_STATUSES,
   ROUTES,
   STORAGE_KEYS,
 } from "../../constants";
+import { api } from "../../services/api";
+import { formatCurrency, formatDateTime } from "../../utils/formatters";
 
 const STATUS_BADGE_STYLES = {
   pending: "bg-amber-100 text-amber-800",
@@ -17,31 +17,47 @@ const STATUS_BADGE_STYLES = {
   delivered: "bg-gray-100 text-gray-700",
 };
 
+const isAuthError = (message) =>
+  typeof message === "string" &&
+  (message.includes("401") ||
+    message.includes("403") ||
+    message.toLowerCase().includes("token"));
+
+const normalizeOrdersResponse = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.orders)) return data.orders;
+  return [];
+};
+
 const AdminOrders = () => {
   const navigate = useNavigate();
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
 
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     setLoading(true);
     setError("");
+
     try {
       const data = await api.getOrders();
-      const nextOrders = Array.isArray(data) ? data : data?.orders ?? [];
-      setOrders(Array.isArray(nextOrders) ? nextOrders : []);
+      setOrders(normalizeOrdersResponse(data));
     } catch (err) {
-      if (err?.message?.includes("401") || err?.message?.includes("403")) {
+      const message = err instanceof Error ? err.message : "Failed to fetch orders";
+
+      if (isAuthError(message)) {
         localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
         navigate(ROUTES.ADMIN_LOGIN, { replace: true });
         return;
       }
-      setError(err instanceof Error ? err.message : "Failed to fetch orders");
+
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
@@ -49,21 +65,26 @@ const AdminOrders = () => {
       navigate(ROUTES.ADMIN_LOGIN, { replace: true });
       return;
     }
+
     loadOrders();
-  }, [navigate]);
+  }, [navigate, loadOrders]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingOrderId(orderId);
+    setError("");
+
     try {
       const data = await api.updateOrderStatus(orderId, newStatus);
       const updatedOrder = data?.order;
+
       if (updatedOrder) {
-        setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? updatedOrder : o))
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === orderId ? updatedOrder : order
+          )
         );
       }
     } catch (err) {
-      console.error("Failed to update order status:", err);
       setError(err instanceof Error ? err.message : "Failed to update status");
     } finally {
       setUpdatingOrderId(null);
@@ -81,8 +102,15 @@ const AdminOrders = () => {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-        {error}
+      <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+        <p>{error}</p>
+        <button
+          type="button"
+          onClick={loadOrders}
+          className="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -98,13 +126,25 @@ const AdminOrders = () => {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Orders</h1>
+
       {orders.map((order) => (
         <div
           key={order.id}
           className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <h3 className="font-semibold">Order #{order.id}</h3>
+            <div>
+              <h3 className="font-semibold">Order #{order.id}</h3>
+              <p className="text-xs text-gray-500">
+                Placed {formatDateTime(order.createdAt)}
+              </p>
+              {order.trackingCode ? (
+                <p className="text-xs text-gray-500">
+                  Tracking Code: <span className="font-mono">{order.trackingCode}</span>
+                </p>
+              ) : null}
+            </div>
+
             <div className="flex items-center gap-3">
               <span
                 className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -115,45 +155,47 @@ const AdminOrders = () => {
               </span>
               <select
                 value={order.status}
-                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                onChange={(event) =>
+                  handleStatusChange(order.id, event.target.value)
+                }
                 disabled={updatingOrderId === order.id}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {ORDER_STATUSES.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
+                {ORDER_STATUSES.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
                   </option>
                 ))}
               </select>
-              {updatingOrderId === order.id && (
+              {updatingOrderId === order.id ? (
                 <Spinner size="sm" className="border-orange-500" />
-              )}
+              ) : null}
             </div>
           </div>
 
           <div className="mt-3 space-y-1 text-sm text-gray-600">
-            <p>Name: {order.customer?.name}</p>
-            <p>Phone: {order.customer?.phone}</p>
-            {order.customer?.address && (
-              <p>Address: {order.customer.address}</p>
-            )}
+            <p>Name: {order.customer?.name || "-"}</p>
+            <p>Phone: {order.customer?.phone || "-"}</p>
+            {order.customer?.address ? <p>Address: {order.customer.address}</p> : null}
+            {order.customer?.notes ? <p>Notes: {order.customer.notes}</p> : null}
           </div>
 
           <ul className="mt-3 divide-y divide-gray-100">
-            {(order.items || []).map((item, idx) => (
-              <li key={idx} className="flex justify-between py-2 text-sm">
+            {(order.items || []).map((item, index) => (
+              <li
+                key={`${item.id ?? item.name}-${index}`}
+                className="flex justify-between py-2 text-sm"
+              >
                 <span>
-                  {item.name} × {item.qty}
+                  {item.name} x {item.qty}
                 </span>
-                <span>
-                  {item.price * item.qty} {CURRENCY}
-                </span>
+                <span>{formatCurrency(item.price * item.qty)}</span>
               </li>
             ))}
           </ul>
 
           <div className="mt-3 border-t pt-3 font-semibold text-orange-600">
-            Total: {order.total} {CURRENCY}
+            Total: {formatCurrency(order.total)}
           </div>
         </div>
       ))}

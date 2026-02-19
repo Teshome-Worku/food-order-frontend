@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { api } from "../services/api";
 import { ROUTES, STORAGE_KEYS } from "../constants";
 import { useToast } from "../context/toastContext";
+import { api } from "../services/api";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,13 +21,17 @@ const AdminLogin = () => {
     }
   }, [navigate]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     setIsSubmitting(true);
+
     try {
-      const data = await api.adminLogin(email, password);
-      if (!data?.token) throw new Error("No token returned from server");
+      const data = await api.adminLogin(email.trim(), password);
+      if (!data?.token) {
+        throw new Error("No token returned from server");
+      }
+
       localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, data.token);
       showToast("Logged in", "success");
       navigate(ROUTES.ADMIN_ORDERS, { replace: true });
@@ -43,9 +48,7 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-gray-100 px-4 py-10">
       <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow">
         <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Sign in to manage orders.
-        </p>
+        <p className="mt-1 text-sm text-gray-600">Sign in to manage orders.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="space-y-1">
@@ -55,7 +58,7 @@ const AdminLogin = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               placeholder="admin@mamifood.com"
               autoComplete="username"
@@ -70,9 +73,9 @@ const AdminLogin = () => {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-              placeholder="••••••"
+              placeholder="******"
               autoComplete="current-password"
               required
             />
@@ -98,4 +101,3 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
-
