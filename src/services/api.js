@@ -51,6 +51,7 @@ const toOrderTrackingUrl = (orderId, trackingCode) => {
 };
 
 export const api = {
+  // --- Public ---
   getMenu: () => fetchJson(API_ENDPOINTS.MENU),
 
   createOrder: (order) =>
@@ -62,6 +63,13 @@ export const api = {
   trackOrder: (orderId, trackingCode) =>
     fetchJson(toOrderTrackingUrl(orderId, trackingCode)),
 
+  lookupOrdersByPhone: (phone) =>
+    fetchJson(`${API_ENDPOINTS.ORDER_LOOKUP}?phone=${encodeURIComponent(phone)}`),
+
+  getActiveAnnouncements: () =>
+    fetchJson(API_ENDPOINTS.ANNOUNCEMENTS_ACTIVE),
+
+  // --- Admin: Orders ---
   getOrders: () => fetchWithAuth(API_ENDPOINTS.ORDERS),
 
   updateOrderStatus: (orderId, status) =>
@@ -70,12 +78,55 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
+  deleteOrder: (orderId) =>
+    fetchWithAuth(`${API_ENDPOINTS.ORDERS}/${orderId}`, {
+      method: "DELETE",
+    }),
+
+  // --- Admin: Menu ---
+  getMenuAdmin: () => fetchWithAuth(API_ENDPOINTS.MENU_ADMIN),
+
+  addMenuItem: (item) =>
+    fetchWithAuth(API_ENDPOINTS.MENU, {
+      method: "POST",
+      body: JSON.stringify(item),
+    }),
+
+  updateMenuItem: (id, updates) =>
+    fetchWithAuth(`${API_ENDPOINTS.MENU}/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    }),
+
+  deleteMenuItem: (id) =>
+    fetchWithAuth(`${API_ENDPOINTS.MENU}/${id}`, {
+      method: "DELETE",
+    }),
+
+  // --- Admin: Announcements ---
+  getAnnouncements: () => fetchWithAuth(API_ENDPOINTS.ANNOUNCEMENTS),
+
+  createAnnouncement: (data) =>
+    fetchWithAuth(API_ENDPOINTS.ANNOUNCEMENTS, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateAnnouncement: (id, updates) =>
+    fetchWithAuth(`${API_ENDPOINTS.ANNOUNCEMENTS}/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    }),
+
+  deleteAnnouncement: (id) =>
+    fetchWithAuth(`${API_ENDPOINTS.ANNOUNCEMENTS}/${id}`, {
+      method: "DELETE",
+    }),
+
+  // --- Admin: Auth ---
   adminLogin: (email, password) =>
     fetchJson(API_ENDPOINTS.ADMIN_LOGIN, {
       method: "POST",
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+      body: JSON.stringify({ email, password }),
     }),
 };

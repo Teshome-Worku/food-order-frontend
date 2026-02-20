@@ -7,10 +7,11 @@ import {
   useRef,
   useState,
 } from "react";
+import { FiCheckCircle, FiAlertCircle, FiInfo, FiX } from "react-icons/fi";
 
 const ToastContext = createContext(null);
 
-const TOAST_DURATION = 3000;
+const TOAST_DURATION = 3500;
 
 const buildToastId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
@@ -55,38 +56,66 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <ToastContainer toasts={toasts} />
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </ToastContext.Provider>
   );
 };
 
-const ToastContainer = ({ toasts }) => (
+const ToastContainer = ({ toasts, onDismiss }) => (
   <div
     className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"
     role="region"
     aria-label="Notifications"
   >
     {toasts.map((toast) => (
-      <Toast key={toast.id} message={toast.message} type={toast.type} />
+      <Toast
+        key={toast.id}
+        id={toast.id}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={onDismiss}
+      />
     ))}
   </div>
 );
 
-const Toast = ({ message, type }) => {
-  const styles = {
-    success: "border-green-700 bg-green-600 text-white",
-    error: "border-red-700 bg-red-600 text-white",
-    info: "border-blue-700 bg-blue-600 text-white",
-  };
+const toastStyles = {
+  success: {
+    container: "border-green-200 bg-green-50 text-green-800",
+    icon: FiCheckCircle,
+    iconColor: "text-green-500",
+  },
+  error: {
+    container: "border-red-200 bg-red-50 text-red-800",
+    icon: FiAlertCircle,
+    iconColor: "text-red-500",
+  },
+  info: {
+    container: "border-blue-200 bg-blue-50 text-blue-800",
+    icon: FiInfo,
+    iconColor: "text-blue-500",
+  },
+};
+
+const Toast = ({ id, message, type, onDismiss }) => {
+  const style = toastStyles[type] || toastStyles.success;
+  const Icon = style.icon;
 
   return (
     <div
-      className={`animate-toast-in flex items-center gap-2 rounded-lg border px-4 py-3 shadow-lg ${styles[type] || styles.success}`}
+      className={`animate-toast-in flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm ${style.container}`}
       role="alert"
     >
-      {type === "success" ? <span aria-hidden="true">OK</span> : null}
-      {type === "error" ? <span aria-hidden="true">X</span> : null}
-      <span>{message}</span>
+      <Icon className={`h-5 w-5 shrink-0 ${style.iconColor}`} />
+      <span className="flex-1 text-sm font-medium">{message}</span>
+      <button
+        type="button"
+        onClick={() => onDismiss(id)}
+        className="shrink-0 rounded-md p-0.5 opacity-50 transition hover:opacity-100"
+        aria-label="Dismiss"
+      >
+        <FiX className="h-4 w-4" />
+      </button>
     </div>
   );
 };
